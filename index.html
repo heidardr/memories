@@ -3,765 +3,832 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>خاطره‌نگار</title>
+<title>خاطره‌نگار خانوادگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --ink: #1a1209;
-  --paper: #faf6f0;
-  --aged: #f0e8d8;
-  --sepia: #d4b896;
-  --rust: #b85c38;
-  --rust2: #9a4a2c;
-  --gold: #c9973e;
-  --muted: #8a7060;
-  --shadow: rgba(26,18,9,0.12);
-  --line: rgba(212,184,150,0.5);
+  --bg: #faf6f0;
+  --surface: #f0e8dc;
+  --card: #ffffff;
+  --border: rgba(180,140,90,0.15);
+  --gold: #b8763a;
+  --gold2: #9a5e28;
+  --amber: #8a4e1e;
+  --muted: #9a8470;
+  --text: #2a1f14;
+  --subtext: #6a5444;
+  --line: #ddd0bc;
+  --red: #c0392b;
+  --green: #27ae60;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   font-family: 'Vazirmatn', sans-serif;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
   direction: rtl;
+  overflow-x: hidden;
 }
 
-/* ── BACKGROUND TEXTURE ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(212,184,150,0.18) 28px, rgba(212,184,150,0.18) 29px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ── LOGIN ── */
-#login-page {
+/* ════ AUTH ════ */
+#auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 1;
   padding: 20px;
+  position: relative;
 }
-
-.login-wrap {
-  width: 420px;
-  max-width: 100%;
+#auth-page::before {
+  content:'';
+  position:absolute;
+  width:500px;height:500px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(180,140,90,0.12) 0%,transparent 70%);
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
 }
-
-.login-header {
-  text-align: center;
-  margin-bottom: 40px;
-  animation: fadeDown 0.7s ease;
+.auth-box { width:400px; max-width:100%; animation: authIn 0.7s cubic-bezier(0.16,1,0.3,1); }
+@keyframes authIn {
+  from{opacity:0;transform:translateY(30px) scale(0.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
 }
-
-@keyframes fadeDown {
-  from { opacity:0; transform:translateY(-20px); }
-  to   { opacity:1; transform:translateY(0); }
+.auth-logo { text-align:center; margin-bottom:32px; }
+.auth-logo .icon {
+  font-size:50px; display:block; margin-bottom:12px;
+  animation: sway 5s ease-in-out infinite;
 }
-
-.login-header .quill {
-  font-size: 52px;
-  display: block;
-  margin-bottom: 14px;
-  filter: drop-shadow(0 4px 8px rgba(184,92,56,0.3));
-  animation: float 4s ease-in-out infinite;
+@keyframes sway {
+  0%,100%{transform:rotate(-8deg);}
+  50%{transform:rotate(8deg) translateY(-6px);}
 }
-
-@keyframes float {
-  0%,100% { transform: rotate(-5deg) translateY(0); }
-  50%      { transform: rotate(5deg) translateY(-8px); }
+.auth-logo h1 {
+  font-size:28px; font-weight:900;
+  background:linear-gradient(135deg,var(--amber),var(--gold2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-
-.login-header h1 {
-  font-size: 32px;
-  font-weight: 900;
-  color: var(--ink);
-  letter-spacing: -1px;
+.auth-logo p { font-size:13px; color:var(--muted); margin-top:6px; }
+.auth-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:32px 28px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5);
 }
-
-.login-header p {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 6px;
-  font-weight: 300;
-}
-
-.login-card {
-  background: white;
-  border-radius: 20px;
-  padding: 36px 32px;
-  box-shadow: 0 12px 40px var(--shadow), 0 0 0 1px var(--line);
-  animation: fadeUp 0.7s ease 0.1s both;
-}
-
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(24px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-.tabs {
-  display: flex;
-  background: var(--aged);
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 28px;
-  gap: 4px;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 9px;
-  border: none;
-  background: transparent;
-  border-radius: 9px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.tab-btn.active {
-  background: white;
-  color: var(--ink);
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.field { margin-bottom: 16px; }
+.field { margin-bottom:14px; }
 .field label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 7px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  display:block; font-size:11px; font-weight:700;
+  color:var(--muted); margin-bottom:7px;
+  letter-spacing:0.8px; text-transform:uppercase;
 }
-
 .field input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid var(--sepia);
-  border-radius: 10px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 14px;
-  background: var(--paper);
-  color: var(--ink);
-  outline: none;
-  transition: all 0.3s;
-  direction: rtl;
+  width:100%; padding:11px 14px;
+  border:1px solid var(--line); border-radius:10px;
+  font-family:'Vazirmatn',sans-serif; font-size:14px;
+  background:var(--surface); color:var(--text);
+  outline:none; transition:all 0.3s;
+  direction:ltr; text-align:right;
 }
-
-.field input:focus {
-  border-color: var(--rust);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(184,92,56,0.1);
+.field input:focus { border-color:var(--gold2); box-shadow:0 0 0 3px rgba(232,184,109,0.1); }
+.btn-gold {
+  width:100%; padding:13px;
+  background:linear-gradient(135deg,#e8d5b8,#d4b896);
+  color:#5a3e28; border:none; border-radius:11px;
+  font-family:'Vazirmatn',sans-serif; font-size:15px; font-weight:800;
+  cursor:pointer; transition:all 0.3s; margin-top:6px;
 }
-
-.btn-main {
-  width: 100%;
-  padding: 13px;
-  background: linear-gradient(135deg, var(--rust), var(--rust2));
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 6px;
-  position: relative;
-  overflow: hidden;
+.btn-gold:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(232,184,109,0.3); }
+.btn-gold:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+.err { color:#e74c3c; font-size:12px; text-align:center; margin-top:10px; display:none; }
+.ok-msg { color:var(--green); font-size:12px; text-align:center; margin-top:10px; display:none; }
+.forgot-link { text-align:center; margin-top:14px; font-size:12px; color:var(--muted); cursor:pointer; transition:color 0.3s; }
+.forgot-link:hover { color:var(--gold); }
+.auth-tabs { display:flex; background:var(--surface); border-radius:12px; padding:4px; margin-bottom:26px; gap:3px; }
+.auth-tab {
+  flex:1; padding:9px; border:none; background:transparent;
+  border-radius:9px; font-family:'Vazirmatn',sans-serif;
+  font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; transition:all 0.3s;
 }
+.auth-tab.active { background:var(--card); color:var(--amber); box-shadow:0 2px 8px rgba(0,0,0,0.3); }
 
-.btn-main::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
+/* ════ PROFILE SELECT ════ */
+#profile-page {
+  min-height:100vh;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  flex-direction:column;
 }
-
-.btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(184,92,56,0.35); }
-.btn-main:hover::after { opacity: 1; }
-.btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-.err-msg {
-  font-size: 12px;
-  color: #c0392b;
-  text-align: center;
-  margin-top: 10px;
-  display: none;
+.profile-box { width:420px; max-width:100%; animation:authIn 0.5s ease; }
+.profile-box h2 {
+  text-align:center; font-size:22px; font-weight:900; margin-bottom:8px;
+  background:linear-gradient(135deg,var(--amber),var(--gold2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-
-/* ── APP ── */
-#app-page { display: none; position: relative; z-index: 1; }
-
-header {
-  background: white;
-  border-bottom: 1px solid var(--line);
-  padding: 14px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: 0 2px 16px var(--shadow);
+.profile-box p { text-align:center; font-size:13px; color:var(--muted); margin-bottom:28px; }
+.profiles-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.profile-btn {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:18px 10px; cursor:pointer;
+  transition:all 0.3s; display:flex; flex-direction:column;
+  align-items:center; gap:8px;
 }
-
-.h-logo {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--ink);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.profile-btn:hover { border-color:var(--gold2); transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.3); }
+.profile-avatar { font-size:32px; }
+.profile-name { font-size:13px; font-weight:700; color:var(--text); }
+.add-profile-btn {
+  background:transparent; border:1.5px dashed var(--line);
+  border-radius:16px; padding:18px 10px; cursor:pointer;
+  transition:all 0.3s; display:flex; flex-direction:column;
+  align-items:center; gap:8px; font-family:'Vazirmatn',sans-serif;
+  color:var(--muted); font-size:12px;
 }
-
-.h-logo span { font-size: 22px; }
-
-.h-right { display: flex; align-items: center; gap: 12px; }
-
-.user-chip {
-  background: var(--aged);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
+.add-profile-btn:hover { border-color:var(--gold2); color:var(--gold); }
+.add-profile-form {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:20px; margin-top:12px; display:none;
 }
-
-.btn-out {
-  border: 1.5px solid var(--sepia);
-  background: transparent;
-  padding: 5px 14px;
-  border-radius: 20px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 13px;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.3s;
+.add-profile-form h3 { font-size:14px; font-weight:700; margin-bottom:14px; color:var(--gold); }
+.emoji-pick { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.ep-btn {
+  font-size:22px; padding:6px; border-radius:8px; cursor:pointer;
+  border:1.5px solid transparent; background:var(--surface); transition:all 0.2s;
 }
-
-.btn-out:hover { background: var(--aged); color: var(--ink); }
-
-main {
-  max-width: 780px;
-  margin: 0 auto;
-  padding: 32px 18px 60px;
+.ep-btn.sel { border-color:var(--gold2); background:rgba(232,184,109,0.1); }
+.inp-line {
+  width:100%; padding:10px 14px;
+  border:1px solid var(--line); border-radius:10px;
+  font-family:'Vazirmatn',sans-serif; font-size:14px;
+  background:var(--surface); color:var(--text);
+  outline:none; transition:all 0.3s; direction:rtl;
+  margin-bottom:10px;
 }
-
-/* ── ADD CARD ── */
-.add-card {
-  background: white;
-  border-radius: 18px;
-  padding: 26px 24px;
-  box-shadow: 0 4px 20px var(--shadow);
-  border: 1px solid var(--line);
-  margin-bottom: 36px;
+.inp-line:focus { border-color:var(--gold2); }
+.btn-row { display:flex; gap:8px; }
+.btn-outline {
+  flex:1; padding:10px; border:1px solid var(--line);
+  border-radius:10px; background:transparent;
+  font-family:'Vazirmatn',sans-serif; font-size:13px;
+  color:var(--muted); cursor:pointer; transition:all 0.3s;
 }
-
-.add-card h2 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  color: var(--ink);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.btn-outline:hover { border-color:var(--gold2); color:var(--gold); }
+.btn-fill {
+  flex:1; padding:10px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border:none; border-radius:10px;
+  font-family:'Vazirmatn',sans-serif; font-size:13px;
+  font-weight:700; color:#1a1000; cursor:pointer; transition:all 0.3s;
 }
+.btn-fill:hover { transform:translateY(-1px); }
 
-.type-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
+/* ════ APP ════ */
+#app-page { display:none; }
+.app-header {
+  position:fixed; top:0; right:0; left:0; z-index:100;
+  background:rgba(250,246,240,0.95); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex; align-items:center; justify-content:space-between;
 }
+.hl {
+  font-size:17px; font-weight:900;
+  background:linear-gradient(135deg,var(--amber),var(--gold2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  display:flex; align-items:center; gap:7px;
+}
+.hr { display:flex; align-items:center; gap:8px; }
+.user-tag {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:5px 12px;
+  font-size:12px; font-weight:600; color:var(--gold);
+  cursor:pointer; transition:all 0.3s;
+}
+.user-tag:hover { border-color:var(--gold2); }
+.btn-sm {
+  background:transparent; border:1px solid var(--line);
+  padding:5px 12px; border-radius:20px;
+  font-family:'Vazirmatn',sans-serif; font-size:12px;
+  color:var(--muted); cursor:pointer; transition:all 0.3s;
+}
+.btn-sm:hover { border-color:var(--gold2); color:var(--gold); }
+.app-nav {
+  position:fixed; bottom:0; right:0; left:0; z-index:100;
+  background:rgba(250,246,240,0.97); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:8px 16px 12px; gap:4px;
+}
+.nav-btn {
+  flex:1; padding:9px 6px; border:none; background:transparent;
+  border-radius:12px; font-family:'Vazirmatn',sans-serif;
+  font-size:11px; font-weight:600; color:var(--muted);
+  cursor:pointer; transition:all 0.3s;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+}
+.nav-btn .ni { font-size:19px; }
+.nav-btn.active { color:var(--amber); background:rgba(232,184,109,0.08); }
 
+/* ════ VIEWS ════ */
+.view { display:none; padding:66px 0 76px; }
+.view.active { display:block; }
+
+/* ════ TIMELINE ════ */
+.tl-wrap {
+  max-width:700px; margin:0 auto; padding:20px 16px;
+  position:relative;
+}
+.tl-wrap::before {
+  content:''; position:absolute;
+  top:0; bottom:0; right:50%; width:1px;
+  background:linear-gradient(to bottom,transparent,var(--gold) 10%,var(--gold) 90%,transparent);
+  opacity:0.2;
+}
+.tl-year { text-align:center; margin:28px 0 18px; position:relative; z-index:1; }
+.tl-year span {
+  background:var(--bg); padding:5px 16px;
+  border:1px solid var(--gold2); border-radius:20px;
+  font-size:12px; font-weight:700; color:var(--gold);
+}
+.tl-item {
+  display:flex; margin-bottom:28px; position:relative;
+  animation:tlIn 0.45s ease both;
+}
+@keyframes tlIn { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+.tl-item:nth-child(odd)  { flex-direction:row-reverse; }
+.tl-item:nth-child(even) { flex-direction:row; }
+.tl-dot {
+  position:absolute; right:50%; top:18px;
+  transform:translateX(50%);
+  width:11px; height:11px; border-radius:50%;
+  background:var(--gold2); border:2px solid var(--bg);
+  box-shadow:0 0 0 3px rgba(201,151,62,0.2); z-index:2;
+}
+.tl-card {
+  width:calc(50% - 22px);
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; overflow:hidden;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
+  transition:transform 0.3s,box-shadow 0.3s; cursor:pointer;
+}
+.tl-card:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,0.4); border-color:rgba(232,184,109,0.2); }
+.tl-media img,.tl-media video,.tl-media audio { width:100%; display:block; }
+.tl-media img,.tl-media video { height:130px; object-fit:cover; }
+.tl-media audio { padding:10px; background:var(--surface); }
+.tl-icon-placeholder {
+  height:70px; background:var(--surface);
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; color:var(--muted);
+}
+.tl-body { padding:12px; }
+.tl-who {
+  font-size:11px; font-weight:800; color:var(--amber);
+  margin-bottom:4px; display:flex; align-items:center; gap:4px;
+}
+.tl-date { font-size:10px; color:var(--muted); margin-bottom:6px; }
+.tl-desc {
+  font-size:12px; color:var(--subtext); line-height:1.7;
+  display:-webkit-box; -webkit-line-clamp:2;
+  -webkit-box-orient:vertical; overflow:hidden;
+}
+.tl-loc { font-size:10px; color:var(--muted); margin-top:6px; }
+.tl-del {
+  display:inline-block; margin-top:8px; padding:3px 8px;
+  border:1px solid rgba(192,57,43,0.3); border-radius:6px;
+  font-size:10px; color:rgba(192,57,43,0.7);
+  cursor:pointer; background:transparent;
+  font-family:'Vazirmatn',sans-serif; transition:all 0.3s;
+}
+.tl-del:hover { background:rgba(192,57,43,0.1); color:#e74c3c; }
+.empty-tl { text-align:center; padding:70px 20px; color:var(--muted); }
+.empty-tl .big { font-size:52px; margin-bottom:14px; opacity:0.4; }
+.empty-tl h3 { font-size:17px; font-weight:700; color:var(--subtext); margin-bottom:6px; }
+
+/* ════ ADD ════ */
+.add-wrap { max-width:580px; margin:0 auto; padding:20px 16px; }
+.add-wrap h2 {
+  font-size:20px; font-weight:900; margin-bottom:20px;
+  background:linear-gradient(135deg,var(--amber),var(--gold2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.sec {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:18px; margin-bottom:14px;
+}
+.sec h3 {
+  font-size:11px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.8px;
+  margin-bottom:12px; display:flex; align-items:center; gap:5px;
+}
+.type-row { display:flex; gap:7px; flex-wrap:wrap; }
 .type-btn {
-  flex: 1;
-  padding: 9px 6px;
-  border: 1.5px solid var(--sepia);
-  border-radius: 10px;
-  background: var(--paper);
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 13px;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
+  flex:1; min-width:80px; padding:9px 5px;
+  border:1px solid var(--line); border-radius:9px;
+  background:var(--surface); font-family:'Vazirmatn',sans-serif;
+  font-size:11px; color:var(--muted); cursor:pointer;
+  transition:all 0.3s; font-weight:600;
+  display:flex; align-items:center; justify-content:center; gap:4px;
 }
-
-.type-btn.active {
-  border-color: var(--rust);
-  background: rgba(184,92,56,0.07);
-  color: var(--rust2);
-}
-
+.type-btn.active { border-color:var(--gold2); background:rgba(232,184,109,0.08); color:var(--amber); }
 textarea {
-  width: 100%;
-  padding: 13px 15px;
-  border: 1.5px solid var(--sepia);
-  border-radius: 12px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 14px;
-  background: var(--paper);
-  color: var(--ink);
-  resize: vertical;
-  min-height: 120px;
-  outline: none;
-  transition: all 0.3s;
-  direction: rtl;
-  line-height: 1.9;
+  width:100%; padding:12px 14px;
+  border:1px solid var(--line); border-radius:11px;
+  font-family:'Vazirmatn',sans-serif; font-size:14px;
+  background:var(--surface); color:var(--text);
+  resize:vertical; min-height:100px; outline:none;
+  transition:all 0.3s; direction:rtl; line-height:1.9;
 }
-
-textarea:focus {
-  border-color: var(--rust);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(184,92,56,0.1);
-}
-
+textarea:focus { border-color:var(--gold2); box-shadow:0 0 0 3px rgba(232,184,109,0.08); }
 .drop-zone {
-  border: 2px dashed var(--sepia);
-  border-radius: 12px;
-  padding: 28px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  background: var(--paper);
+  border:1.5px dashed var(--line); border-radius:11px;
+  padding:24px 16px; text-align:center;
+  cursor:pointer; transition:all 0.3s; background:var(--surface);
 }
-
-.drop-zone:hover, .drop-zone.over {
-  border-color: var(--rust);
-  background: rgba(184,92,56,0.04);
+.drop-zone:hover,.drop-zone.over { border-color:var(--gold2); background:rgba(232,184,109,0.04); }
+.drop-zone .di { font-size:26px; margin-bottom:7px; }
+.drop-zone p { font-size:12px; color:var(--muted); }
+.drop-zone input { display:none; }
+#preview { margin-top:10px; display:none; }
+#preview img,#preview video { max-width:100%; border-radius:9px; max-height:170px; object-fit:cover; }
+#preview audio { width:100%; margin-top:4px; }
+.prog-wrap { display:none; margin-top:8px; }
+.prog-bar { height:3px; background:var(--line); border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--amber)); width:0; transition:width 0.3s; }
+.inp {
+  width:100%; padding:10px 13px;
+  border:1px solid var(--line); border-radius:10px;
+  font-family:'Vazirmatn',sans-serif; font-size:13px;
+  background:var(--surface); color:var(--text);
+  outline:none; transition:all 0.3s; direction:rtl; margin-bottom:10px;
 }
-
-.drop-zone .dicon { font-size: 30px; margin-bottom: 8px; }
-.drop-zone p { font-size: 13px; color: var(--muted); }
-.drop-zone input { display: none; }
-
-#preview { margin-top: 12px; display: none; }
-#preview img, #preview video {
-  max-width: 100%;
-  border-radius: 10px;
-  max-height: 220px;
-  object-fit: cover;
+.inp:last-child { margin-bottom:0; }
+.inp:focus { border-color:var(--gold2); }
+.btn-submit {
+  width:100%; padding:13px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#1a1000; border:none; border-radius:11px;
+  font-family:'Vazirmatn',sans-serif; font-size:14px; font-weight:800;
+  cursor:pointer; transition:all 0.3s; margin-top:6px;
 }
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(232,184,109,0.25); }
+.btn-submit:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
 
-.form-foot {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  align-items: center;
-  flex-wrap: wrap;
+/* ════ MODAL ════ */
+.overlay {
+  position:fixed; inset:0; background:rgba(42,31,20,0.75);
+  z-index:500; display:none; align-items:center;
+  justify-content:center; padding:16px;
+  backdrop-filter:blur(10px);
 }
-
-.date-pick {
-  flex: 1;
-  min-width: 140px;
-  padding: 11px 14px;
-  border: 1.5px solid var(--sepia);
-  border-radius: 10px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 14px;
-  background: var(--paper);
-  color: var(--ink);
-  outline: none;
-  transition: all 0.3s;
+.overlay.open { display:flex; }
+.modal {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; max-width:540px; width:100%;
+  max-height:88vh; overflow-y:auto;
+  animation:mIn 0.3s ease; position:relative;
 }
-
-.date-pick:focus {
-  border-color: var(--rust);
-  box-shadow: 0 0 0 3px rgba(184,92,56,0.1);
+@keyframes mIn { from{opacity:0;transform:scale(0.95);} to{opacity:1;transform:scale(1);} }
+.modal-media img,.modal-media video { width:100%; max-height:300px; object-fit:cover; display:block; border-radius:18px 18px 0 0; }
+.modal-media audio { width:100%; padding:14px; background:var(--surface); border-radius:18px 18px 0 0; display:block; }
+.modal-body { padding:20px 20px 24px; }
+.modal-who { font-size:13px; font-weight:800; color:var(--amber); margin-bottom:4px; }
+.modal-date { font-size:11px; color:var(--gold2); margin-bottom:12px; }
+.modal-text { font-size:14px; line-height:2; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+.modal-loc { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--muted); }
+.modal-close {
+  position:absolute; top:12px; left:12px;
+  background:rgba(42,31,20,0.4); border:none; color:white;
+  width:32px; height:32px; border-radius:50%;
+  cursor:pointer; font-size:14px;
+  display:flex; align-items:center; justify-content:center; transition:all 0.3s;
 }
+.modal-close:hover { background:rgba(42,31,20,0.7); }
 
-.btn-save {
-  padding: 11px 26px;
-  background: linear-gradient(135deg, var(--rust), var(--rust2));
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-family: 'Vazirmatn', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(184,92,56,0.3); }
-.btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-.upload-progress {
-  width: 100%;
-  margin-top: 10px;
-  display: none;
-}
-
-.progress-bar {
-  height: 4px;
-  background: var(--aged);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--rust), var(--gold));
-  border-radius: 4px;
-  width: 0%;
-  transition: width 0.3s;
-}
-
-/* ── MEMORIES ── */
-.mem-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.mem-head h2 { font-size: 18px; font-weight: 900; }
-
-.mem-count {
-  background: var(--aged);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.mem-grid { display: grid; gap: 14px; }
-
-.mem-card {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 10px var(--shadow);
-  border: 1px solid var(--line);
-  animation: cardIn 0.4s ease both;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.mem-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px var(--shadow); }
-
-@keyframes cardIn {
-  from { opacity:0; transform:translateY(14px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-.mem-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.badge {
-  padding: 3px 10px;
-  border-radius: 7px;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.badge-text  { background: rgba(184,92,56,0.12); color: var(--rust2); }
-.badge-image { background: rgba(56,150,100,0.12); color: #2a7a5a; }
-.badge-video { background: rgba(70,100,200,0.12); color: #3a5ab0; }
-
-.mem-date { font-size: 12px; color: var(--muted); font-weight: 500; margin-right: auto; }
-
-.btn-del {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--sepia);
-  font-size: 15px;
-  border-radius: 7px;
-  padding: 3px 6px;
-  transition: all 0.3s;
-  line-height: 1;
-}
-.btn-del:hover { color: #c0392b; background: rgba(192,57,43,0.08); }
-
-.mem-text { font-size: 14px; line-height: 1.95; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
-
-.mem-media { margin-top: 12px; border-radius: 10px; overflow: hidden; }
-.mem-media img, .mem-media video { width: 100%; max-height: 300px; object-fit: cover; display: block; }
-
-.spinner {
-  display: inline-block;
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  vertical-align: middle;
-  margin-left: 6px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.loading-state {
-  text-align: center;
-  padding: 50px 20px;
-  color: var(--muted);
-}
-.loading-state .big { font-size: 40px; margin-bottom: 12px; animation: spin 2s linear infinite; }
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--muted);
-}
-.empty-state .big { font-size: 52px; margin-bottom: 14px; opacity: 0.5; }
-.empty-state h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-.empty-state p { font-size: 13px; font-weight: 300; }
-
-/* ── TOAST ── */
+/* ════ TOAST ════ */
 .toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  padding: 11px 22px;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: 600;
-  z-index: 999;
-  transition: transform 0.4s ease;
-  white-space: nowrap;
-  pointer-events: none;
+  position:fixed; bottom:86px; left:50%;
+  transform:translateX(-50%) translateY(16px);
+  padding:9px 20px; border-radius:30px;
+  font-size:12px; font-weight:600; z-index:999;
+  opacity:0; transition:all 0.4s; pointer-events:none; white-space:nowrap;
 }
-.toast.success { background: var(--ink); color: var(--paper); }
-.toast.error   { background: #c0392b; color: white; }
-.toast.show    { transform: translateX(-50%) translateY(0); }
+.toast.ok-t  { background:var(--green); color:white; }
+.toast.err-t { background:var(--red); color:white; }
+.toast.show  { opacity:1; transform:translateX(-50%) translateY(0); }
+.spin {
+  display:inline-block; width:13px; height:13px;
+  border:2px solid rgba(180,140,90,0.3); border-top-color:var(--gold2);
+  border-radius:50%; animation:sp 0.7s linear infinite;
+  vertical-align:middle; margin-right:5px;
+}
+.spin-w {
+  display:inline-block; width:13px; height:13px;
+  border:2px solid rgba(180,140,90,0.3); border-top-color:var(--gold2);
+  border-radius:50%; animation:sp 0.7s linear infinite;
+  vertical-align:middle; margin-right:5px;
+}
+@keyframes sp { to{transform:rotate(360deg);} }
 
-@media (max-width: 480px) {
-  .add-card, header { padding: 14px 16px; }
-  .type-row { gap: 5px; }
-  .type-btn { font-size: 12px; padding: 8px 4px; }
+@media(max-width:480px){
+  .tl-card{width:calc(50% - 14px);}
+  .tl-media img,.tl-media video{height:100px;}
+  .profiles-grid{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-page">
-  <div class="login-wrap">
-    <div class="login-header">
-      <span class="quill">🪶</span>
-      <h1>خاطره‌نگار</h1>
-      <p>لحظه‌های ناب زندگیت رو ثبت کن</p>
+<!-- ════ AUTH ════ -->
+<div id="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <span class="icon">🪶</span>
+      <h1>خاطره‌نگار خانوادگی</h1>
+      <p>لحظه‌های خانوادگیتون رو جاودانه کنید</p>
     </div>
-    <div class="login-card">
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('login')">ورود</button>
-        <button class="tab-btn" onclick="switchTab('register')">ثبت‌نام</button>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">ورود</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">ثبت‌نام</button>
+        <button class="auth-tab" onclick="switchAuthTab('forgot')">فراموشی رمز</button>
       </div>
 
-      <div id="login-form">
-        <div class="field"><label>ایمیل</label><input type="email" id="l-email" placeholder="example@email.com" /></div>
+      <div id="frm-login">
+        <div class="field"><label>نام کاربری</label><input type="text" id="l-user" placeholder="username" /></div>
         <div class="field"><label>رمز عبور</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
-        <button class="btn-main" id="btn-login" onclick="doLogin()">ورود ✨</button>
-        <div class="err-msg" id="l-err"></div>
+        <button class="btn-gold" id="btn-login" onclick="doLogin()">ورود ✨</button>
+        <div class="err" id="l-err"></div>
+        <div class="forgot-link" onclick="switchAuthTab('forgot')">رمز عبورم رو فراموش کردم</div>
       </div>
 
-      <div id="register-form" style="display:none">
-        <div class="field"><label>نام نمایشی</label><input type="text" id="r-name" placeholder="مثلاً: علی" /></div>
-        <div class="field"><label>ایمیل</label><input type="email" id="r-email" placeholder="example@email.com" /></div>
+      <div id="frm-register" style="display:none">
+        <div class="field"><label>نام کاربری خانواده</label><input type="text" id="r-user" placeholder="family_name" /></div>
+        <div class="field"><label>ایمیل (برای بازیابی رمز)</label><input type="email" id="r-email" placeholder="example@email.com" /></div>
         <div class="field"><label>رمز عبور</label><input type="password" id="r-pass" placeholder="حداقل ۶ کاراکتر" /></div>
-        <button class="btn-main" id="btn-reg" onclick="doRegister()">ساخت حساب 🌱</button>
-        <div class="err-msg" id="r-err"></div>
+        <button class="btn-gold" id="btn-reg" onclick="doRegister()">ساخت حساب خانوادگی 🌱</button>
+        <div class="err" id="r-err"></div>
+        <div class="ok-msg" id="r-ok"></div>
+      </div>
+
+      <div id="frm-forgot" style="display:none">
+        <div class="field"><label>ایمیل حساب</label><input type="email" id="f-email" placeholder="example@email.com" /></div>
+        <button class="btn-gold" id="btn-forgot" onclick="doForgot()">ارسال لینک بازیابی 📧</button>
+        <div class="err" id="f-err"></div>
+        <div class="ok-msg" id="f-ok"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ════ PROFILE SELECT ════ -->
+<div id="profile-page" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px;flex-direction:column;">
+  <div class="profile-box">
+    <h2>🪶 کی هستی؟</h2>
+    <p>یه پروفایل انتخاب کن یا پروفایل جدید بساز</p>
+    <div class="profiles-grid" id="profiles-grid"></div>
+
+    <div class="add-profile-form" id="add-profile-form">
+      <h3>➕ پروفایل جدید</h3>
+      <div class="emoji-pick" id="emoji-pick">
+        <span class="ep-btn sel" data-e="👤" onclick="pickEmoji(this)">👤</span>
+        <span class="ep-btn" data-e="👦" onclick="pickEmoji(this)">👦</span>
+        <span class="ep-btn" data-e="👧" onclick="pickEmoji(this)">👧</span>
+        <span class="ep-btn" data-e="👨" onclick="pickEmoji(this)">👨</span>
+        <span class="ep-btn" data-e="👩" onclick="pickEmoji(this)">👩</span>
+        <span class="ep-btn" data-e="👴" onclick="pickEmoji(this)">👴</span>
+        <span class="ep-btn" data-e="👵" onclick="pickEmoji(this)">👵</span>
+        <span class="ep-btn" data-e="🧒" onclick="pickEmoji(this)">🧒</span>
+      </div>
+      <input class="inp-line" id="new-profile-name" placeholder="اسمت رو بنویس..." maxlength="20">
+      <div class="btn-row">
+        <button class="btn-outline" onclick="hideAddProfile()">انصراف</button>
+        <button class="btn-fill" onclick="saveNewProfile()">ذخیره</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
 <div id="app-page">
-  <header>
-    <div class="h-logo"><span>🪶</span> خاطره‌نگار</div>
-    <div class="h-right">
-      <div class="user-chip" id="user-chip"></div>
-      <button class="btn-out" onclick="doLogout()">خروج</button>
+  <header class="app-header">
+    <div class="hl">🪶 خاطره‌نگار</div>
+    <div class="hr">
+      <div class="user-tag" id="utag" onclick="switchProfile()" title="تغییر پروفایل"></div>
+      <button class="btn-sm" onclick="doLogout()">خروج</button>
     </div>
   </header>
-  <main>
-    <!-- ADD -->
-    <div class="add-card">
+
+  <div class="view active" id="view-timeline">
+    <div class="tl-wrap" id="tl-wrap">
+      <div class="empty-tl"><div class="big">🕊️</div><h3>هنوز خاطره‌ای نیست</h3><p>از تب «خاطره جدید» شروع کنید</p></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-add">
+    <div class="add-wrap">
       <h2>✏️ خاطره جدید</h2>
-      <div class="type-row">
-        <button class="type-btn active" onclick="setType('text',this)">✍️ متن</button>
-        <button class="type-btn" onclick="setType('image',this)">🖼️ عکس</button>
-        <button class="type-btn" onclick="setType('video',this)">🎬 ویدیو</button>
-      </div>
 
-      <div id="area-text">
-        <textarea id="mem-text" placeholder="خاطره‌ات رو اینجا بنویس..."></textarea>
-      </div>
-
-      <div id="area-file" style="display:none">
-        <div class="drop-zone" id="dzone"
-          onclick="document.getElementById('finput').click()"
-          ondragover="event.preventDefault();this.classList.add('over')"
-          ondragleave="this.classList.remove('over')"
-          ondrop="onDrop(event)">
-          <div class="dicon" id="dicon">📁</div>
-          <p id="dtxt">کلیک کن یا فایل رو اینجا بکش</p>
-          <input type="file" id="finput" onchange="onFile(this.files[0])">
-        </div>
-        <div id="preview"></div>
-        <div class="upload-progress" id="uprog">
-          <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+      <div class="sec">
+        <h3>📎 نوع محتوا</h3>
+        <div class="type-row">
+          <button class="type-btn active" onclick="setType('text',this)">✍️ متن</button>
+          <button class="type-btn" onclick="setType('image',this)">🖼️ عکس</button>
+          <button class="type-btn" onclick="setType('video',this)">🎬 ویدیو</button>
+          <button class="type-btn" onclick="setType('audio',this)">🎵 آهنگ</button>
+          <button class="type-btn" onclick="setType('voice',this)">🎙️ ویس</button>
         </div>
       </div>
 
-      <div class="form-foot">
-        <input type="date" class="date-pick" id="mem-date">
-        <button class="btn-save" id="btn-save" onclick="saveMemory()">ذخیره خاطره</button>
+      <div class="sec">
+        <h3 id="content-label">📝 متن خاطره</h3>
+        <div id="area-text">
+          <textarea id="mem-text" placeholder="خاطره‌ات رو اینجا بنویس..."></textarea>
+        </div>
+        <div id="area-file" style="display:none">
+          <div class="drop-zone" id="dzone"
+            onclick="document.getElementById('finput').click()"
+            ondragover="event.preventDefault();this.classList.add('over')"
+            ondragleave="this.classList.remove('over')"
+            ondrop="onDrop(event)">
+            <div class="di" id="dicon">📁</div>
+            <p id="dtxt">کلیک کن یا فایل رو اینجا بکش</p>
+            <input type="file" id="finput" onchange="onFile(this.files[0])">
+          </div>
+          <div id="preview"></div>
+          <div class="prog-wrap" id="uprog"><div class="prog-bar"><div class="prog-fill" id="pfill"></div></div></div>
+        </div>
       </div>
-    </div>
 
-    <!-- LIST -->
-    <div class="mem-head">
-      <h2>خاطره‌هام 🌸</h2>
-      <div class="mem-count" id="mcnt">—</div>
+      <div class="sec">
+        <h3>💬 توضیحات</h3>
+        <textarea id="mem-desc" placeholder="توضیحات یا احساست رو بنویس... (اختیاری)" style="min-height:75px"></textarea>
+      </div>
+
+      <div class="sec">
+        <h3>📅 تاریخ و مکان</h3>
+        <input type="date" class="inp" id="mem-date">
+        <input type="text" class="inp" id="mem-loc" placeholder="📍 مکان (مثلاً: تهران، پارک لاله)">
+      </div>
+
+      <button class="btn-submit" id="btn-save" onclick="saveMemory()">ذخیره خاطره</button>
     </div>
-    <div class="mem-grid" id="mem-list">
-      <div class="loading-state"><div class="big">⏳</div><p>در حال بارگذاری...</p></div>
+  </div>
+
+  <nav class="app-nav">
+    <button class="nav-btn active" id="nav-tl" onclick="switchView('timeline')"><span class="ni">🗓️</span>تایم‌لاین</button>
+    <button class="nav-btn" id="nav-add" onclick="switchView('add')"><span class="ni">➕</span>خاطره جدید</button>
+  </nav>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-media" id="modal-media"></div>
+    <div class="modal-body">
+      <div class="modal-who" id="modal-who"></div>
+      <div class="modal-date" id="modal-date"></div>
+      <div class="modal-text" id="modal-text"></div>
+      <div class="modal-loc"  id="modal-loc"></div>
     </div>
-  </main>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL = 'https://fkpnuegbxwlohqgxvtyd.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_csCkp-opXNEIUOR2vUz87A_MvYlRBIY';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SB_URL = 'https://fkpnuegbxwlohqgxvtyd.supabase.co';
+const SB_KEY = 'sb_publishable_csCkp-opXNEIUOR2vUz87A_MvYlRBIY';
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
 let curUser = null;
+let curProfile = null; // {name, emoji}
 let curType = 'text';
 let curFile = null;
+let selEmoji = '👤';
 
 // ── INIT ──
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (session) enterApp(session.user);
+  if (session) {
+    curUser = session.user;
+    showProfileSelect();
+  }
 })();
 
-sb.auth.onAuthStateChange((_, session) => {
-  if (session) enterApp(session.user);
-});
-
-// ── TABS ──
-function switchTab(t) {
-  document.getElementById('login-form').style.display   = t==='login' ? '' : 'none';
-  document.getElementById('register-form').style.display = t==='register' ? '' : 'none';
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active',(i===0)===(t==='login')));
+// ── AUTH TABS ──
+function switchAuthTab(t) {
+  ['login','register','forgot'].forEach(n => {
+    document.getElementById('frm-'+n).style.display = n===t?'':'none';
+  });
+  document.querySelectorAll('.auth-tab').forEach((b,i) =>
+    b.classList.toggle('active', ['login','register','forgot'][i]===t)
+  );
 }
 
 // ── LOGIN ──
 async function doLogin() {
-  const email = document.getElementById('l-email').value.trim();
-  const pass  = document.getElementById('l-pass').value;
-  const btn   = document.getElementById('btn-login');
-  const err   = document.getElementById('l-err');
+  const user = document.getElementById('l-user').value.trim().toLowerCase();
+  const pass = document.getElementById('l-pass').value;
+  const btn  = document.getElementById('btn-login');
+  const err  = document.getElementById('l-err');
   err.style.display = 'none';
-  btn.disabled = true;
-  btn.innerHTML = 'در حال ورود... <span class="spinner"></span>';
+  if (!user||!pass) { showErr('l-err','همه فیلدها رو پر کن'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="spin-w"></span>در حال ورود...';
 
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  btn.disabled = false;
-  btn.innerHTML = 'ورود ✨';
-  if (error) { err.textContent = 'ایمیل یا رمز عبور اشتباه است'; err.style.display = 'block'; }
+  const { data: profile } = await sb.from('family_accounts').select('email').eq('username',user).single();
+  if (!profile) { btn.disabled=false; btn.textContent='ورود ✨'; showErr('l-err','نام کاربری یافت نشد'); return; }
+
+  const { error } = await sb.auth.signInWithPassword({ email: profile.email, password: pass });
+  btn.disabled=false; btn.innerHTML='ورود ✨';
+  if (error) { showErr('l-err','رمز عبور اشتباه است'); return; }
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { curUser = session.user; showProfileSelect(); }
 }
 
 // ── REGISTER ──
 async function doRegister() {
-  const name  = document.getElementById('r-name').value.trim();
+  const uname = document.getElementById('r-user').value.trim().toLowerCase();
   const email = document.getElementById('r-email').value.trim();
   const pass  = document.getElementById('r-pass').value;
   const btn   = document.getElementById('btn-reg');
-  const err   = document.getElementById('r-err');
-  err.style.display = 'none';
+  document.getElementById('r-err').style.display='none';
 
-  if (!name || !email || !pass) { err.textContent='همه فیلدها رو پر کن'; err.style.display='block'; return; }
-  if (pass.length < 6)          { err.textContent='رمز عبور حداقل ۶ کاراکتر'; err.style.display='block'; return; }
+  if (!uname||!email||!pass) { showErr('r-err','همه فیلدها رو پر کن'); return; }
+  if (!/^[a-z0-9_]+$/.test(uname)) { showErr('r-err','نام کاربری فقط حروف انگلیسی کوچک، عدد یا _'); return; }
+  if (pass.length<6) { showErr('r-err','رمز عبور حداقل ۶ کاراکتر'); return; }
 
-  btn.disabled = true;
-  btn.innerHTML = 'در حال ثبت‌نام... <span class="spinner"></span>';
+  btn.disabled=true; btn.innerHTML='<span class="spin-w"></span>در حال ثبت‌نام...';
 
-  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { display_name: name } } });
-  btn.disabled = false;
-  btn.innerHTML = 'ساخت حساب 🌱';
+  const { data: ex } = await sb.from('family_accounts').select('id').eq('username',uname).single();
+  if (ex) { btn.disabled=false; btn.innerHTML='ساخت حساب خانوادگی 🌱'; showErr('r-err','این نام کاربری قبلاً گرفته شده'); return; }
 
-  if (error) { err.textContent = error.message; err.style.display='block'; return; }
-  showToast('حساب ساخته شد! لطفاً ایمیلت رو تأیید کن', 'success');
+  const { data, error } = await sb.auth.signUp({ email, password: pass, options:{ data:{ username:uname } } });
+  btn.disabled=false; btn.innerHTML='ساخت حساب خانوادگی 🌱';
+  if (error) { showErr('r-err', error.message); return; }
+
+  if (data.user) {
+    await sb.from('family_accounts').insert({ id: data.user.id, username: uname, email });
+  }
+
+  document.getElementById('r-ok').textContent='✅ حساب ساخته شد! وارد شو.';
+  document.getElementById('r-ok').style.display='block';
+
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session) { curUser = session.user; setTimeout(showProfileSelect, 800); }
+}
+
+// ── FORGOT ──
+async function doForgot() {
+  const email = document.getElementById('f-email').value.trim();
+  const btn   = document.getElementById('btn-forgot');
+  if (!email) { showErr('f-err','ایمیلت رو وارد کن'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="spin-w"></span>در حال ارسال...';
+  const { error } = await sb.auth.resetPasswordForEmail(email);
+  btn.disabled=false; btn.innerHTML='ارسال لینک بازیابی 📧';
+  if (error) { showErr('f-err', error.message); return; }
+  document.getElementById('f-ok').textContent='📧 لینک بازیابی به ایمیلت ارسال شد';
+  document.getElementById('f-ok').style.display='block';
+}
+
+// ── PROFILE SELECT ──
+function showProfileSelect() {
+  document.getElementById('auth-page').style.display='none';
+  document.getElementById('app-page').style.display='none';
+  const pg = document.getElementById('profile-page');
+  pg.style.display='flex';
+  document.getElementById('add-profile-form').style.display='none';
+  renderProfiles();
+}
+
+function getProfiles() {
+  if (!curUser) return [];
+  return JSON.parse(localStorage.getItem('fam_profiles_'+curUser.id)||'[]');
+}
+
+function saveProfiles(arr) {
+  localStorage.setItem('fam_profiles_'+curUser.id, JSON.stringify(arr));
+}
+
+function renderProfiles() {
+  const profiles = getProfiles();
+  const grid = document.getElementById('profiles-grid');
+  let html = profiles.map((p,i) => `
+    <button class="profile-btn" onclick="selectProfile(${i})">
+      <span class="profile-avatar">${p.emoji}</span>
+      <span class="profile-name">${esc(p.name)}</span>
+    </button>
+  `).join('');
+  html += `<button class="add-profile-btn" onclick="showAddProfile()"><span style="font-size:24px">➕</span><span>پروفایل جدید</span></button>`;
+  grid.innerHTML = html;
+}
+
+function selectProfile(i) {
+  const profiles = getProfiles();
+  curProfile = profiles[i];
+  enterApp();
+}
+
+function showAddProfile() {
+  document.getElementById('add-profile-form').style.display='block';
+  document.getElementById('new-profile-name').focus();
+}
+
+function hideAddProfile() {
+  document.getElementById('add-profile-form').style.display='none';
+  document.getElementById('new-profile-name').value='';
+}
+
+function pickEmoji(el) {
+  document.querySelectorAll('.ep-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  selEmoji = el.dataset.e;
+}
+
+function saveNewProfile() {
+  const name = document.getElementById('new-profile-name').value.trim();
+  if (!name) { toast('اسمت رو بنویس','err-t'); return; }
+  const profiles = getProfiles();
+  profiles.push({ name, emoji: selEmoji });
+  saveProfiles(profiles);
+  hideAddProfile();
+  renderProfiles();
+  toast('پروفایل اضافه شد ✅','ok-t');
+}
+
+function switchProfile() {
+  showProfileSelect();
 }
 
 // ── ENTER APP ──
-function enterApp(user) {
-  curUser = user;
-  const name = user.user_metadata?.display_name || user.email;
-  document.getElementById('user-chip').textContent = '👤 ' + name;
-  document.getElementById('login-page').style.display = 'none';
-  document.getElementById('app-page').style.display = 'block';
+function enterApp() {
+  document.getElementById('profile-page').style.display='none';
+  document.getElementById('app-page').style.display='block';
+  document.getElementById('utag').textContent = (curProfile?.emoji||'👤') + ' ' + (curProfile?.name||'');
   document.getElementById('mem-date').value = new Date().toISOString().split('T')[0];
-  loadMemories();
+  loadTimeline();
 }
 
 // ── LOGOUT ──
 async function doLogout() {
   await sb.auth.signOut();
-  curUser = null; curFile = null;
-  document.getElementById('app-page').style.display = 'none';
-  document.getElementById('login-page').style.display = 'flex';
+  curUser=null; curProfile=null;
+  document.getElementById('app-page').style.display='none';
+  document.getElementById('profile-page').style.display='none';
+  document.getElementById('auth-page').style.display='flex';
+}
+
+// ── NAV ──
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('nav-'+v==='timeline'?'tl':v==='add'?'add':'tl').classList.add('active');
+  if(v==='timeline') document.getElementById('nav-tl').classList.add('active');
+  if(v==='add')      document.getElementById('nav-add').classList.add('active');
 }
 
 // ── TYPE ──
+const typeConfig = {
+  text:  { icon:'✍️', label:'متن خاطره', accept:'', drop:'', isFile:false },
+  image: { icon:'🖼️', label:'عکس',      accept:'image/*', drop:'عکست رو بکش یا کلیک کن', isFile:true },
+  video: { icon:'🎬', label:'ویدیو',     accept:'video/*', drop:'ویدیوت رو بکش یا کلیک کن', isFile:true },
+  audio: { icon:'🎵', label:'آهنگ',      accept:'audio/*', drop:'آهنگت رو بکش یا کلیک کن', isFile:true },
+  voice: { icon:'🎙️', label:'ویس',       accept:'audio/*', drop:'فایل ویس رو بکش یا کلیک کن', isFile:true },
+};
+
 function setType(t, btn) {
-  curType = t; curFile = null;
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('preview').innerHTML = '';
-  document.getElementById('uprog').style.display = 'none';
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  curType=t; curFile=null;
+  document.getElementById('preview').style.display='none';
+  document.getElementById('preview').innerHTML='';
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('area-text').style.display = t==='text' ? '' : 'none';
-  document.getElementById('area-file').style.display = t!=='text' ? '' : 'none';
-  document.getElementById('dicon').textContent = t==='image' ? '🖼️' : '🎬';
-  document.getElementById('dtxt').textContent  = t==='image' ? 'عکست رو اینجا بکش یا کلیک کن' : 'ویدیوت رو اینجا بکش یا کلیک کن';
-  document.getElementById('finput').accept = t==='image' ? 'image/*' : 'video/*';
+  const cfg = typeConfig[t];
+  document.getElementById('content-label').textContent = cfg.icon + ' ' + cfg.label;
+  document.getElementById('area-text').style.display  = cfg.isFile?'none':'';
+  document.getElementById('area-file').style.display  = cfg.isFile?'':'none';
+  if (cfg.isFile) {
+    document.getElementById('dicon').textContent = cfg.icon;
+    document.getElementById('dtxt').textContent  = cfg.drop;
+    document.getElementById('finput').accept     = cfg.accept;
+  }
 }
 
-// ── FILE ──
 function onFile(file) {
   if (!file) return;
   curFile = file;
   const url = URL.createObjectURL(file);
-  const prev = document.getElementById('preview');
-  prev.style.display = 'block';
-  prev.innerHTML = curType==='image'
-    ? `<img src="${url}" style="max-width:100%;border-radius:10px;max-height:200px;object-fit:cover">`
-    : `<video src="${url}" controls style="max-width:100%;border-radius:10px;max-height:200px"></video>`;
+  const p = document.getElementById('preview');
+  p.style.display='block';
+  if (curType==='image')
+    p.innerHTML=`<img src="${url}" style="max-width:100%;border-radius:9px;max-height:160px;object-fit:cover">`;
+  else if (curType==='video')
+    p.innerHTML=`<video src="${url}" controls style="max-width:100%;border-radius:9px;max-height:160px"></video>`;
+  else
+    p.innerHTML=`<audio src="${url}" controls style="width:100%"></audio>`;
 }
 
 function onDrop(e) {
@@ -773,32 +840,28 @@ function onDrop(e) {
 // ── SAVE ──
 async function saveMemory() {
   const date = document.getElementById('mem-date').value;
-  if (!date) { showToast('تاریخ رو انتخاب کن','error'); return; }
+  const desc = document.getElementById('mem-desc').value.trim();
+  const loc  = document.getElementById('mem-loc').value.trim();
+  if (!date) { toast('تاریخ رو انتخاب کن','err-t'); return; }
 
   const btn = document.getElementById('btn-save');
-  btn.disabled = true;
-  btn.textContent = 'در حال ذخیره...';
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>در حال ذخیره...';
 
-  let file_url = null;
-  let content  = null;
+  let file_url=null, content=null;
 
   try {
-    if (curType === 'text') {
+    if (curType==='text') {
       content = document.getElementById('mem-text').value.trim();
-      if (!content) { showToast('متن خاطره رو بنویس','error'); btn.disabled=false; btn.textContent='ذخیره خاطره'; return; }
+      if (!content) { toast('متن خاطره رو بنویس','err-t'); btn.disabled=false; btn.textContent='ذخیره خاطره'; return; }
     } else {
-      if (!curFile) { showToast('لطفاً فایل انتخاب کن','error'); btn.disabled=false; btn.textContent='ذخیره خاطره'; return; }
-
-      document.getElementById('uprog').style.display = 'block';
+      if (!curFile) { toast('لطفاً فایل انتخاب کن','err-t'); btn.disabled=false; btn.textContent='ذخیره خاطره'; return; }
+      document.getElementById('uprog').style.display='block';
       const ext  = curFile.name.split('.').pop();
       const path = `${curUser.id}/${Date.now()}.${ext}`;
-
-      const { data, error: upErr } = await sb.storage.from('memories').upload(path, curFile, { upsert: false });
+      const { error:upErr } = await sb.storage.from('memories').upload(path, curFile);
       if (upErr) throw upErr;
-
-      document.getElementById('pfill').style.width = '100%';
-
-      const { data: { publicUrl } } = sb.storage.from('memories').getPublicUrl(path);
+      document.getElementById('pfill').style.width='100%';
+      const { data:{ publicUrl } } = sb.storage.from('memories').getPublicUrl(path);
       file_url = publicUrl;
     }
 
@@ -807,99 +870,152 @@ async function saveMemory() {
       type: curType,
       content,
       file_url,
-      date
+      description: desc,
+      location: loc,
+      date,
+      member_name:  curProfile?.name  || '',
+      member_emoji: curProfile?.emoji || '👤',
     });
     if (error) throw error;
 
-    // reset
-    document.getElementById('mem-text').value = '';
-    curFile = null;
-    document.getElementById('preview').style.display = 'none';
-    document.getElementById('preview').innerHTML = '';
-    document.getElementById('uprog').style.display = 'none';
-    document.getElementById('pfill').style.width = '0%';
+    document.getElementById('mem-text').value='';
+    document.getElementById('mem-desc').value='';
+    document.getElementById('mem-loc').value='';
+    curFile=null;
+    document.getElementById('preview').style.display='none';
+    document.getElementById('preview').innerHTML='';
+    document.getElementById('uprog').style.display='none';
+    document.getElementById('pfill').style.width='0';
 
-    showToast('خاطره ذخیره شد 🌸', 'success');
-    loadMemories();
+    toast('خاطره ذخیره شد 🌸','ok-t');
+    switchView('timeline');
+    loadTimeline();
   } catch(e) {
-    showToast('خطا: ' + e.message, 'error');
+    toast('خطا: '+e.message,'err-t');
   }
-
-  btn.disabled = false;
-  btn.textContent = 'ذخیره خاطره';
+  btn.disabled=false; btn.textContent='ذخیره خاطره';
 }
 
-// ── LOAD ──
-async function loadMemories() {
-  document.getElementById('mem-list').innerHTML = '<div class="loading-state"><p>در حال بارگذاری...</p></div>';
+// ── LOAD TIMELINE ──
+async function loadTimeline() {
+  const wrap = document.getElementById('tl-wrap');
+  wrap.innerHTML='<div class="empty-tl"><p style="color:var(--muted)">در حال بارگذاری...</p></div>';
+
   const { data, error } = await sb.from('memories')
-    .select('*')
-    .eq('user_id', curUser.id)
-    .order('date', { ascending: false });
+    .select('*').eq('user_id',curUser.id)
+    .order('date',{ascending:false});
 
-  if (error) { showToast('خطا در بارگذاری', 'error'); return; }
-  renderMems(data || []);
-}
-
-function renderMems(mems) {
-  const cnt = document.getElementById('mcnt');
-  cnt.textContent = mems.length + ' خاطره';
-
-  if (!mems.length) {
-    document.getElementById('mem-list').innerHTML = `
-      <div class="empty-state">
-        <div class="big">🕊️</div>
-        <h3>هنوز خاطره‌ای ثبت نکردی</h3>
-        <p>اولین خاطره‌ات رو بالا بنویس ✨</p>
-      </div>`;
+  if (error||!data?.length) {
+    wrap.innerHTML=`<div class="empty-tl"><div class="big">🕊️</div><h3>هنوز خاطره‌ای نیست</h3><p>از تب «خاطره جدید» شروع کنید</p></div>`;
     return;
   }
 
-  document.getElementById('mem-list').innerHTML = mems.map((m,i) => `
-    <div class="mem-card" style="animation-delay:${i*0.06}s">
-      <div class="mem-meta">
-        <span class="badge badge-${m.type}">
-          ${m.type==='text'?'✍️ متن':m.type==='image'?'🖼️ عکس':'🎬 ویدیو'}
-        </span>
-        <span class="mem-date">📅 ${fmtDate(m.date)}</span>
-        <button class="btn-del" onclick="delMem('${m.id}','${m.file_url||''}')">🗑️</button>
-      </div>
-      ${m.type==='text' ? `<div class="mem-text">${esc(m.content)}</div>` : ''}
-      ${m.type==='image' && m.file_url ? `<div class="mem-media"><img src="${m.file_url}" loading="lazy"></div>` : ''}
-      ${m.type==='video' && m.file_url ? `<div class="mem-media"><video src="${m.file_url}" controls></video></div>` : ''}
-    </div>
-  `).join('');
+  const byYear = {};
+  data.forEach(m => {
+    const y = m.date?.split('-')[0]||'?';
+    if (!byYear[y]) byYear[y]=[];
+    byYear[y].push(m);
+  });
+
+  const typeLabel = { text:'✍️ متن', image:'🖼️ عکس', video:'🎬 ویدیو', audio:'🎵 آهنگ', voice:'🎙️ ویس' };
+  let html='';
+
+  Object.keys(byYear).sort((a,b)=>b-a).forEach(year => {
+    html+=`<div class="tl-year"><span>${year}</span></div>`;
+    byYear[year].forEach((m,i) => {
+      const delay = i*0.06;
+      const dateStr = fmtDate(m.date);
+      const who = m.member_emoji ? m.member_emoji+' '+m.member_name : m.member_name||'';
+      const desc = m.description || (m.type==='text'?m.content:'') || '';
+      const shortDesc = desc.length>70 ? desc.slice(0,70)+'...' : desc;
+
+      let mediaHtml='';
+      if (m.type==='image'&&m.file_url)
+        mediaHtml=`<div class="tl-media"><img src="${m.file_url}" loading="lazy"></div>`;
+      else if (m.type==='video'&&m.file_url)
+        mediaHtml=`<div class="tl-media"><video src="${m.file_url}"></video></div>`;
+      else if ((m.type==='audio'||m.type==='voice')&&m.file_url)
+        mediaHtml=`<div class="tl-media"><audio src="${m.file_url}" controls></audio></div>`;
+      else
+        mediaHtml=`<div class="tl-icon-placeholder">${typeLabel[m.type]||'📝'}</div>`;
+
+      html+=`
+        <div class="tl-item" style="animation-delay:${delay}s" onclick="openModal('${m.id}')">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            ${mediaHtml}
+            <div class="tl-body">
+              ${who?`<div class="tl-who">${esc(who)}</div>`:''}
+              <div class="tl-date">📅 ${dateStr}</div>
+              ${shortDesc?`<div class="tl-desc">${esc(shortDesc)}</div>`:''}
+              ${m.location?`<div class="tl-loc">📍 ${esc(m.location)}</div>`:''}
+              <button class="tl-del" onclick="event.stopPropagation();delMem('${m.id}','${m.file_url||''}')">🗑️ حذف</button>
+            </div>
+          </div>
+        </div>`;
+    });
+  });
+
+  wrap.innerHTML=html;
+}
+
+// ── MODAL ──
+async function openModal(id) {
+  const { data:m } = await sb.from('memories').select('*').eq('id',id).single();
+  if (!m) return;
+
+  let mediaHtml='';
+  if (m.type==='image'&&m.file_url) mediaHtml=`<img src="${m.file_url}">`;
+  else if (m.type==='video'&&m.file_url) mediaHtml=`<video src="${m.file_url}" controls></video>`;
+  else if ((m.type==='audio'||m.type==='voice')&&m.file_url) mediaHtml=`<audio src="${m.file_url}" controls></audio>`;
+
+  document.getElementById('modal-media').innerHTML=mediaHtml;
+  const who = m.member_emoji ? m.member_emoji+' '+m.member_name : m.member_name||'';
+  document.getElementById('modal-who').textContent  = who;
+  document.getElementById('modal-date').textContent = '📅 '+fmtDate(m.date);
+  const full = m.description ? (m.type==='text'&&m.content ? m.content+'\n\n'+m.description : m.description) : (m.content||'');
+  document.getElementById('modal-text').textContent = full;
+  const locEl = document.getElementById('modal-loc');
+  locEl.innerHTML  = m.location ? '📍 '+esc(m.location) : '';
+  locEl.style.display = m.location?'block':'none';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target===document.getElementById('modal'))
+    document.getElementById('modal').classList.remove('open');
 }
 
 // ── DELETE ──
 async function delMem(id, fileUrl) {
   if (!confirm('این خاطره حذف بشه؟')) return;
-  await sb.from('memories').delete().eq('id', id);
+  await sb.from('memories').delete().eq('id',id);
   if (fileUrl) {
-    const path = fileUrl.split('/memories/')[1];
+    const path = decodeURIComponent(fileUrl.split('/memories/')[1]?.split('?')[0]||'');
     if (path) await sb.storage.from('memories').remove([path]);
   }
-  showToast('خاطره حذف شد', 'success');
-  loadMemories();
+  toast('خاطره حذف شد','ok-t');
+  loadTimeline();
 }
 
 // ── HELPERS ──
 function fmtDate(d) {
   if (!d) return '';
-  const [y,m,day] = d.split('-');
+  const [y,m,day]=d.split('-');
   return `${day}/${m}/${y}`;
 }
-
 function esc(t) {
   if (!t) return '';
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3000);
+function toast(msg,cls) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${cls} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function showErr(id,msg) {
+  const el=document.getElementById(id);
+  el.textContent=msg; el.style.display='block';
 }
 </script>
 </body>

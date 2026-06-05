@@ -435,6 +435,12 @@ textarea:focus { border-color:var(--gold2); box-shadow:0 0 0 3px rgba(232,184,10
   .tl-card{width:calc(50% - 14px);}
   .tl-media img,.tl-media video{height:100px;}
   .profiles-grid{grid-template-columns:repeat(2,1fr);}
+  .auth-box{width:100%;}
+  .auth-card{padding:24px 18px;}
+  .add-wrap,.tl-wrap{padding:14px 12px;}
+  .app-header{padding:10px 14px;}
+  .type-row{gap:5px;}
+  .type-btn{font-size:10px;padding:8px 3px;}
 }
 </style>
 </head>
@@ -456,7 +462,7 @@ textarea:focus { border-color:var(--gold2); box-shadow:0 0 0 3px rgba(232,184,10
       </div>
 
       <div id="frm-login">
-        <div class="field"><label>نام کاربری</label><input type="text" id="l-user" placeholder="username" /></div>
+        <div class="field"><label>ایمیل</label><input type="email" id="l-user" placeholder="example@email.com" /></div>
         <div class="field"><label>رمز عبور</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
         <button class="btn-gold" id="btn-login" onclick="doLogin()">ورود ✨</button>
         <div class="err" id="l-err"></div>
@@ -464,8 +470,7 @@ textarea:focus { border-color:var(--gold2); box-shadow:0 0 0 3px rgba(232,184,10
       </div>
 
       <div id="frm-register" style="display:none">
-        <div class="field"><label>نام کاربری خانواده</label><input type="text" id="r-user" placeholder="family_name" /></div>
-        <div class="field"><label>ایمیل (برای بازیابی رمز)</label><input type="email" id="r-email" placeholder="example@email.com" /></div>
+        <div class="field"><label>ایمیل</label><input type="email" id="r-email" placeholder="example@email.com" /></div>
         <div class="field"><label>رمز عبور</label><input type="password" id="r-pass" placeholder="حداقل ۶ کاراکتر" /></div>
         <button class="btn-gold" id="btn-reg" onclick="doRegister()">ساخت حساب خانوادگی 🌱</button>
         <div class="err" id="r-err"></div>
@@ -630,20 +635,17 @@ function switchAuthTab(t) {
 
 // ── LOGIN ──
 async function doLogin() {
-  const user = document.getElementById('l-user').value.trim().toLowerCase();
-  const pass = document.getElementById('l-pass').value;
-  const btn  = document.getElementById('btn-login');
-  const err  = document.getElementById('l-err');
+  const email = document.getElementById('l-user').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const btn   = document.getElementById('btn-login');
+  const err   = document.getElementById('l-err');
   err.style.display = 'none';
-  if (!user||!pass) { showErr('l-err','همه فیلدها رو پر کن'); return; }
+  if (!email||!pass) { showErr('l-err','همه فیلدها رو پر کن'); return; }
   btn.disabled=true; btn.innerHTML='<span class="spin-w"></span>در حال ورود...';
 
-  const { data: profile } = await sb.from('family_accounts').select('email').eq('username',user).single();
-  if (!profile) { btn.disabled=false; btn.textContent='ورود ✨'; showErr('l-err','نام کاربری یافت نشد'); return; }
-
-  const { error } = await sb.auth.signInWithPassword({ email: profile.email, password: pass });
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled=false; btn.innerHTML='ورود ✨';
-  if (error) { showErr('l-err','رمز عبور اشتباه است'); return; }
+  if (error) { showErr('l-err','ایمیل یا رمز عبور اشتباه است'); return; }
 
   const { data: { session } } = await sb.auth.getSession();
   if (session) { curUser = session.user; showProfileSelect(); }
@@ -651,28 +653,19 @@ async function doLogin() {
 
 // ── REGISTER ──
 async function doRegister() {
-  const uname = document.getElementById('r-user').value.trim().toLowerCase();
   const email = document.getElementById('r-email').value.trim();
   const pass  = document.getElementById('r-pass').value;
   const btn   = document.getElementById('btn-reg');
   document.getElementById('r-err').style.display='none';
 
-  if (!uname||!email||!pass) { showErr('r-err','همه فیلدها رو پر کن'); return; }
-  if (!/^[a-z0-9_]+$/.test(uname)) { showErr('r-err','نام کاربری فقط حروف انگلیسی کوچک، عدد یا _'); return; }
+  if (!email||!pass) { showErr('r-err','همه فیلدها رو پر کن'); return; }
   if (pass.length<6) { showErr('r-err','رمز عبور حداقل ۶ کاراکتر'); return; }
 
   btn.disabled=true; btn.innerHTML='<span class="spin-w"></span>در حال ثبت‌نام...';
 
-  const { data: ex } = await sb.from('family_accounts').select('id').eq('username',uname).single();
-  if (ex) { btn.disabled=false; btn.innerHTML='ساخت حساب خانوادگی 🌱'; showErr('r-err','این نام کاربری قبلاً گرفته شده'); return; }
-
-  const { data, error } = await sb.auth.signUp({ email, password: pass, options:{ data:{ username:uname } } });
+  const { data, error } = await sb.auth.signUp({ email, password: pass });
   btn.disabled=false; btn.innerHTML='ساخت حساب خانوادگی 🌱';
   if (error) { showErr('r-err', error.message); return; }
-
-  if (data.user) {
-    await sb.from('family_accounts').insert({ id: data.user.id, username: uname, email });
-  }
 
   document.getElementById('r-ok').textContent='✅ حساب ساخته شد! وارد شو.';
   document.getElementById('r-ok').style.display='block';

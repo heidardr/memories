@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خاطره‌نگار</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --ink: #1a1209;
+  --paper: #faf6f0;
+  --aged: #f0e8d8;
+  --sepia: #d4b896;
+  --rust: #b85c38;
+  --rust2: #9a4a2c;
+  --gold: #c9973e;
+  --muted: #8a7060;
+  --shadow: rgba(26,18,9,0.12);
+  --line: rgba(212,184,150,0.5);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Vazirmatn', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  direction: rtl;
+}
+
+/* ── BACKGROUND TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(212,184,150,0.18) 28px, rgba(212,184,150,0.18) 29px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── LOGIN ── */
+#login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+}
+
+.login-wrap {
+  width: 420px;
+  max-width: 100%;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeDown 0.7s ease;
+}
+
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.login-header .quill {
+  font-size: 52px;
+  display: block;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 4px 8px rgba(184,92,56,0.3));
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,100% { transform: rotate(-5deg) translateY(0); }
+  50%      { transform: rotate(5deg) translateY(-8px); }
+}
+
+.login-header h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -1px;
+}
+
+.login-header p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 300;
+}
+
+.login-card {
+  background: white;
+  border-radius: 20px;
+  padding: 36px 32px;
+  box-shadow: 0 12px 40px var(--shadow), 0 0 0 1px var(--line);
+  animation: fadeUp 0.7s ease 0.1s both;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.tabs {
+  display: flex;
+  background: var(--aged);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 28px;
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-btn.active {
+  background: white;
+  color: var(--ink);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--sepia);
+  border-radius: 10px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+  transition: all 0.3s;
+  direction: rtl;
+}
+
+.field input:focus {
+  border-color: var(--rust);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(184,92,56,0.1);
+}
+
+.btn-main {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--rust), var(--rust2));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-main::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(184,92,56,0.35); }
+.btn-main:hover::after { opacity: 1; }
+.btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.err-msg {
+  font-size: 12px;
+  color: #c0392b;
+  text-align: center;
+  margin-top: 10px;
+  display: none;
+}
+
+/* ── APP ── */
+#app-page { display: none; position: relative; z-index: 1; }
+
+header {
+  background: white;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 16px var(--shadow);
+}
+
+.h-logo {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.h-logo span { font-size: 22px; }
+
+.h-right { display: flex; align-items: center; gap: 12px; }
+
+.user-chip {
+  background: var(--aged);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.btn-out {
+  border: 1.5px solid var(--sepia);
+  background: transparent;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-out:hover { background: var(--aged); color: var(--ink); }
+
+main {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 32px 18px 60px;
+}
+
+/* ── ADD CARD ── */
+.add-card {
+  background: white;
+  border-radius: 18px;
+  padding: 26px 24px;
+  box-shadow: 0 4px 20px var(--shadow);
+  border: 1px solid var(--line);
+  margin-bottom: 36px;
+}
+
+.add-card h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.type-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.type-btn {
+  flex: 1;
+  padding: 9px 6px;
+  border: 1.5px solid var(--sepia);
+  border-radius: 10px;
+  background: var(--paper);
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.type-btn.active {
+  border-color: var(--rust);
+  background: rgba(184,92,56,0.07);
+  color: var(--rust2);
+}
+
+textarea {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1.5px solid var(--sepia);
+  border-radius: 12px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+  min-height: 120px;
+  outline: none;
+  transition: all 0.3s;
+  direction: rtl;
+  line-height: 1.9;
+}
+
+textarea:focus {
+  border-color: var(--rust);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(184,92,56,0.1);
+}
+
+.drop-zone {
+  border: 2px dashed var(--sepia);
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: var(--paper);
+}
+
+.drop-zone:hover, .drop-zone.over {
+  border-color: var(--rust);
+  background: rgba(184,92,56,0.04);
+}
+
+.drop-zone .dicon { font-size: 30px; margin-bottom: 8px; }
+.drop-zone p { font-size: 13px; color: var(--muted); }
+.drop-zone input { display: none; }
+
+#preview { margin-top: 12px; display: none; }
+#preview img, #preview video {
+  max-width: 100%;
+  border-radius: 10px;
+  max-height: 220px;
+  object-fit: cover;
+}
+
+.form-foot {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.date-pick {
+  flex: 1;
+  min-width: 140px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--sepia);
+  border-radius: 10px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+  transition: all 0.3s;
+}
+
+.date-pick:focus {
+  border-color: var(--rust);
+  box-shadow: 0 0 0 3px rgba(184,92,56,0.1);
+}
+
+.btn-save {
+  padding: 11px 26px;
+  background: linear-gradient(135deg, var(--rust), var(--rust2));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(184,92,56,0.3); }
+.btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.upload-progress {
+  width: 100%;
+  margin-top: 10px;
+  display: none;
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--aged);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rust), var(--gold));
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+/* ── MEMORIES ── */
+.mem-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.mem-head h2 { font-size: 18px; font-weight: 900; }
+
+.mem-count {
+  background: var(--aged);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.mem-grid { display: grid; gap: 14px; }
+
+.mem-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 10px var(--shadow);
+  border: 1px solid var(--line);
+  animation: cardIn 0.4s ease both;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.mem-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px var(--shadow); }
+
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.mem-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.badge-text  { background: rgba(184,92,56,0.12); color: var(--rust2); }
+.badge-image { background: rgba(56,150,100,0.12); color: #2a7a5a; }
+.badge-video { background: rgba(70,100,200,0.12); color: #3a5ab0; }
+
+.mem-date { font-size: 12px; color: var(--muted); font-weight: 500; margin-right: auto; }
+
+.btn-del {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--sepia);
+  font-size: 15px;
+  border-radius: 7px;
+  padding: 3px 6px;
+  transition: all 0.3s;
+  line-height: 1;
+}
+.btn-del:hover { color: #c0392b; background: rgba(192,57,43,0.08); }
+
+.mem-text { font-size: 14px; line-height: 1.95; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+
+.mem-media { margin-top: 12px; border-radius: 10px; overflow: hidden; }
+.mem-media img, .mem-media video { width: 100%; max-height: 300px; object-fit: cover; display: block; }
+
+.spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--muted);
+}
+.loading-state .big { font-size: 40px; margin-bottom: 12px; animation: spin 2s linear infinite; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-state .big { font-size: 52px; margin-bottom: 14px; opacity: 0.5; }
+.empty-state h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.empty-state p { font-size: 13px; font-weight: 300; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 11px 22px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 999;
+  transition: transform 0.4s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.success { background: var(--ink); color: var(--paper); }
+.toast.error   { background: #c0392b; color: white; }
+.toast.show    { transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 480px) {
+  .add-card, header { padding: 14px 16px; }
+  .type-row { gap: 5px; }
+  .type-btn { font-size: 12px; padding: 8px 4px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="login-wrap">
+    <div class="login-header">
+      <span class="quill">🪶</span>
+      <h1>خاطره‌نگار</h1>
+      <p>لحظه‌های ناب زندگیت رو ثبت کن</p>
+    </div>
+    <div class="login-card">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">ورود</button>
+        <button class="tab-btn" onclick="switchTab('register')">ثبت‌نام</button>
+      </div>
+
+      <div id="login-form">
+        <div class="field"><label>ایمیل</label><input type="email" id="l-email" placeholder="example@email.com" /></div>
+        <div class="field"><label>رمز عبور</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
+        <button class="btn-main" id="btn-login" onclick="doLogin()">ورود ✨</button>
+        <div class="err-msg" id="l-err"></div>
+      </div>
+
+      <div id="register-form" style="display:none">
+        <div class="field"><label>نام نمایشی</label><input type="text" id="r-name" placeholder="مثلاً: علی" /></div>
+        <div class="field"><label>ایمیل</label><input type="email" id="r-email" placeholder="example@email.com" /></div>
+        <div class="field"><label>رمز عبور</label><input type="password" id="r-pass" placeholder="حداقل ۶ کاراکتر" /></div>
+        <button class="btn-main" id="btn-reg" onclick="doRegister()">ساخت حساب 🌱</button>
+        <div class="err-msg" id="r-err"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-page">
+  <header>
+    <div class="h-logo"><span>🪶</span> خاطره‌نگار</div>
+    <div class="h-right">
+      <div class="user-chip" id="user-chip"></div>
+      <button class="btn-out" onclick="doLogout()">خروج</button>
+    </div>
+  </header>
+  <main>
+    <!-- ADD -->
+    <div class="add-card">
+      <h2>✏️ خاطره جدید</h2>
+      <div class="type-row">
+        <button class="type-btn active" onclick="setType('text',this)">✍️ متن</button>
+        <button class="type-btn" onclick="setType('image',this)">🖼️ عکس</button>
+        <button class="type-btn" onclick="setType('video',this)">🎬 ویدیو</button>
+      </div>
+
+      <div id="area-text">
+        <textarea id="mem-text" placeholder="خاطره‌ات رو اینجا بنویس..."></textarea>
+      </div>
+
+      <div id="area-file" style="display:none">
+        <div class="drop-zone" id="dzone"
+          onclick="document.getElementById('finput').click()"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="onDrop(event)">
+          <div class="dicon" id="dicon">📁</div>
+          <p id="dtxt">کلیک کن یا فایل رو اینجا بکش</p>
+          <input type="file" id="finput" onchange="onFile(this.files[0])">
+        </div>
+        <div id="preview"></div>
+        <div class="upload-progress" id="uprog">
+          <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+        </div>
+      </div>
+
+      <div class="form-foot">
+        <input type="date" class="date-pick" id="mem-date">
+        <button class="btn-save" id="btn-save" onclick="saveMemory()">ذخیره خاطره</button>
+      </div>
+    </div>
+
+    <!-- LIST -->
+    <div class="mem-head">
+      <h2>خاطره‌هام 🌸</h2>
+      <div class="mem-count" id="mcnt">—</div>
+    </div>
+    <div class="mem-grid" id="mem-list">
+      <div class="loading-state"><div class="big">⏳</div><p>در حال بارگذاری...</p></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://fkpnuegbxwlohqgxvtyd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_csCkp-opXNEIUOR2vUz87A_MvYlRBIY';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let curUser = null;
+let curType = 'text';
+let curFile = null;
+
+// ── INIT ──
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) enterApp(session.user);
+})();
+
+sb.auth.onAuthStateChange((_, session) => {
+  if (session) enterApp(session.user);
+});
+
+// ── TABS ──
+function switchTab(t) {
+  document.getElementById('login-form').style.display   = t==='login' ? '' : 'none';
+  document.getElementById('register-form').style.display = t==='register' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active',(i===0)===(t==='login')));
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const btn   = document.getElementById('btn-login');
+  const err   = document.getElementById('l-err');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = 'در حال ورود... <span class="spinner"></span>';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false;
+  btn.innerHTML = 'ورود ✨';
+  if (error) { err.textContent = 'ایمیل یا رمز عبور اشتباه است'; err.style.display = 'block'; }
+}
+
+// ── REGISTER ──
+async function doRegister() {
+  const name  = document.getElementById('r-name').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+  const btn   = document.getElementById('btn-reg');
+  const err   = document.getElementById('r-err');
+  err.style.display = 'none';
+
+  if (!name || !email || !pass) { err.textContent='همه فیلدها رو پر کن'; err.style.display='block'; return; }
+  if (pass.length < 6)          { err.textContent='رمز عبور حداقل ۶ کاراکتر'; err.style.display='block'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = 'در حال ثبت‌نام... <span class="spinner"></span>';
+
+  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { display_name: name } } });
+  btn.disabled = false;
+  btn.innerHTML = 'ساخت حساب 🌱';
+
+  if (error) { err.textContent = error.message; err.style.display='block'; return; }
+  showToast('حساب ساخته شد! لطفاً ایمیلت رو تأیید کن', 'success');
+}
+
+// ── ENTER APP ──
+function enterApp(user) {
+  curUser = user;
+  const name = user.user_metadata?.display_name || user.email;
+  document.getElementById('user-chip').textContent = '👤 ' + name;
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app-page').style.display = 'block';
+  document.getElementById('mem-date').value = new Date().toISOString().split('T')[0];
+  loadMemories();
+}
+
+// ── LOGOUT ──
+async function doLogout() {
+  await sb.auth.signOut();
+  curUser = null; curFile = null;
+  document.getElementById('app-page').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+}
+
+// ── TYPE ──
+function setType(t, btn) {
+  curType = t; curFile = null;
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('preview').innerHTML = '';
+  document.getElementById('uprog').style.display = 'none';
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('area-text').style.display = t==='text' ? '' : 'none';
+  document.getElementById('area-file').style.display = t!=='text' ? '' : 'none';
+  document.getElementById('dicon').textContent = t==='image' ? '🖼️' : '🎬';
+  document.getElementById('dtxt').textContent  = t==='image' ? 'عکست رو اینجا بکش یا کلیک کن' : 'ویدیوت رو اینجا بکش یا کلیک کن';
+  document.getElementById('finput').accept = t==='image' ? 'image/*' : 'video/*';
+}
+
+// ── FILE ──
+function onFile(file) {
+  if (!file) return;
+  curFile = file;
+  const url = URL.createObjectURL(file);
+  const prev = document.getElementById('preview');
+  prev.style.display = 'block';
+  prev.innerHTML = curType==='image'
+    ? `<img src="${url}" style="max-width:100%;border-radius:10px;max-height:200px;object-fit:cover">`
+    : `<video src="${url}" controls style="max-width:100%;border-radius:10px;max-height:200px"></video>`;
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dzone').classList.remove('over');
+  onFile(e.dataTransfer.files[0]);
+}
+
+// ── SAVE ──
+async function saveMemory() {
+  const date = document.getElementById('mem-date').value;
+  if (!date) { showToast('تاریخ رو انتخاب کن','error'); return; }
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = 'در حال ذخیره...';
+
+  let file_url = null;
+  let content  = null;
+
+  try {
+    if (curType === 'text') {
+      content = document.getElementById('mem-text').value.trim();
+      if (!content) { showToast('متن خاطره رو بنویس','error'); btn.disabled=false; btn.textContent='ذخیره خاطره'; return; }
+    } else {
+      if (!curFile) { showToast('لطفاً فایل انتخاب کن','error'); btn.disabled=false; btn.textContent='ذخیره خاطره'; return; }
+
+      document.getElementById('uprog').style.display = 'block';
+      const ext  = curFile.name.split('.').pop();
+      const path = `${curUser.id}/${Date.now()}.${ext}`;
+
+      const { data, error: upErr } = await sb.storage.from('memories').upload(path, curFile, { upsert: false });
+      if (upErr) throw upErr;
+
+      document.getElementById('pfill').style.width = '100%';
+
+      const { data: { publicUrl } } = sb.storage.from('memories').getPublicUrl(path);
+      file_url = publicUrl;
+    }
+
+    const { error } = await sb.from('memories').insert({
+      user_id: curUser.id,
+      type: curType,
+      content,
+      file_url,
+      date
+    });
+    if (error) throw error;
+
+    // reset
+    document.getElementById('mem-text').value = '';
+    curFile = null;
+    document.getElementById('preview').style.display = 'none';
+    document.getElementById('preview').innerHTML = '';
+    document.getElementById('uprog').style.display = 'none';
+    document.getElementById('pfill').style.width = '0%';
+
+    showToast('خاطره ذخیره شد 🌸', 'success');
+    loadMemories();
+  } catch(e) {
+    showToast('خطا: ' + e.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'ذخیره خاطره';
+}
+
+// ── LOAD ──
+async function loadMemories() {
+  document.getElementById('mem-list').innerHTML = '<div class="loading-state"><p>در حال بارگذاری...</p></div>';
+  const { data, error } = await sb.from('memories')
+    .select('*')
+    .eq('user_id', curUser.id)
+    .order('date', { ascending: false });
+
+  if (error) { showToast('خطا در بارگذاری', 'error'); return; }
+  renderMems(data || []);
+}
+
+function renderMems(mems) {
+  const cnt = document.getElementById('mcnt');
+  cnt.textContent = mems.length + ' خاطره';
+
+  if (!mems.length) {
+    document.getElementById('mem-list').innerHTML = `
+      <div class="empty-state">
+        <div class="big">🕊️</div>
+        <h3>هنوز خاطره‌ای ثبت نکردی</h3>
+        <p>اولین خاطره‌ات رو بالا بنویس ✨</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('mem-list').innerHTML = mems.map((m,i) => `
+    <div class="mem-card" style="animation-delay:${i*0.06}s">
+      <div class="mem-meta">
+        <span class="badge badge-${m.type}">
+          ${m.type==='text'?'✍️ متن':m.type==='image'?'🖼️ عکس':'🎬 ویدیو'}
+        </span>
+        <span class="mem-date">📅 ${fmtDate(m.date)}</span>
+        <button class="btn-del" onclick="delMem('${m.id}','${m.file_url||''}')">🗑️</button>
+      </div>
+      ${m.type==='text' ? `<div class="mem-text">${esc(m.content)}</div>` : ''}
+      ${m.type==='image' && m.file_url ? `<div class="mem-media"><img src="${m.file_url}" loading="lazy"></div>` : ''}
+      ${m.type==='video' && m.file_url ? `<div class="mem-media"><video src="${m.file_url}" controls></video></div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ── DELETE ──
+async function delMem(id, fileUrl) {
+  if (!confirm('این خاطره حذف بشه؟')) return;
+  await sb.from('memories').delete().eq('id', id);
+  if (fileUrl) {
+    const path = fileUrl.split('/memories/')[1];
+    if (path) await sb.storage.from('memories').remove([path]);
+  }
+  showToast('خاطره حذف شد', 'success');
+  loadMemories();
+}
+
+// ── HELPERS ──
+function fmtDate(d) {
+  if (!d) return '';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function esc(t) {
+  if (!t) return '';
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
